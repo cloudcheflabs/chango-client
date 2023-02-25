@@ -12,8 +12,8 @@ public class ChangoClientTestRunner {
     @Test
     public void sendJson() throws Exception {
         String adminServer = "https://chango-admin-oci.cloudchef-labs.com";
-        String user = "user1";
-        String password = "password1";
+        String user = System.getProperty("user");
+        String password = System.getProperty("password");
         String dataApiServer = "https://chango-data-api-jetty-oci-user1.cloudchef-labs.com";
         int batchSize = 10000;
         long interval = 1000;

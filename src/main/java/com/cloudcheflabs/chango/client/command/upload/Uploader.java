@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 @Command(
         name = "upload",
         subcommands = {JsonUploader.class, ExcelUploader.class, CsvUploader.class},
-        description = {"Upload JSON / Excel data to Chango."}
+        description = {"Upload CSV, JSON, Excel data to Chango."}
 )
 public class Uploader implements Callable<Integer> {
     @ParentCommand

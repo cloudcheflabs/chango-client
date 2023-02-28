@@ -32,7 +32,11 @@ This java library is used to insert JSON streaming events to Chango.
 Add the following maven dependency.
 
 ```
-TODO: ...
+<dependency>
+  <groupId>co.cloudcheflabs.chango</groupId>
+  <artifactId>chango-client</artifactId>
+  <version>1.1.0</version>
+</dependency>
 ```
 
 Or, download the following jar and add it to your classpath.

@@ -5,6 +5,25 @@
 	<artifactId>chango-client</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<name>Chango Client</name>
+	<description>Chango Client</description>
+	<url>https://github.com/cloudcheflabs/chango-client</url>
+
+	<inceptionYear>2012</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>https://github.com/cloudcheflabs/chango-client.git</connection>
+		<url>https://github.com/cloudcheflabs/chango-client</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

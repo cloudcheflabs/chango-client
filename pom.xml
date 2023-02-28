@@ -19,10 +19,19 @@
 	</licenses>
 
 	<scm>
-		<connection>https://github.com/cloudcheflabs/chango-client.git</connection>
+		<connection>scm:git:https://github.com/cloudcheflabs/chango-client.git</connection>
 		<url>https://github.com/cloudcheflabs/chango-client</url>
 		<tag>HEAD</tag>
 	</scm>
+
+	<developers>
+		<developer>
+			<id>mykidong</id>
+			<name>Kidong Lee</name>
+			<email>mykidong@cloudchef-labs.com</email>
+		</developer>
+	</developers>
+
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -270,19 +279,14 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>3.0.0</version>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.4</version>
 				<executions>
 					<execution>
-						<id>sign</id>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
 						<goals>
 							<goal>sign</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>verify</id>
-						<goals>
-							<goal>verify</goal>
 						</goals>
 					</execution>
 				</executions>

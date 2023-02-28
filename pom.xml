@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.cloudcheflabs.chango</groupId>
+	<groupId>co.cloudcheflabs.chango</groupId>
 	<artifactId>chango-client</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<name>Chango Client</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<main-class>com.cloudcheflabs.chango.client.Chango</main-class>
+		<main-class>co.cloudcheflabs.chango.client.Chango</main-class>
 
 		<!-- logback -->
 		<logback.version>1.2.6</logback.version>

@@ -37,7 +37,7 @@ TODO: ...
 
 Or, download the following jar and add it to your classpath.
 ```
-curl -L -O https://github.com/cloudcheflabs/chango-client/releases/download/1.0.0/chango-client-1.0.0-executable.jar;
+curl -L -O https://github.com/cloudcheflabs/chango-client/releases/download/1.1.0/chango-client-1.1.0-executable.jar;
 ```
 
 ### Use Chango Client Library for Java

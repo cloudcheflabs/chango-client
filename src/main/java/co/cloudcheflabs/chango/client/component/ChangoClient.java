@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static co.cloudcheflabs.chango.client.domain.RestResponse.STATUS_OK;
-
 public class ChangoClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ChangoClient.class);
@@ -34,25 +32,14 @@ public class ChangoClient {
 
     private long intervalInMillis;
 
-    public ChangoClient(String adminServer,
-                        String user,
-                        String password,
+    public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
                         String table) {
-        this(adminServer,
-                user,
-                password,
-                dataApiServer,
-                schema,
-                table,
-                10000,
-                1000);
+        this(token, dataApiServer, schema, table, 10000, 1000);
     }
 
-    public ChangoClient(String adminServer,
-                        String user,
-                        String password,
+    public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
                         String table,
@@ -68,9 +55,7 @@ public class ChangoClient {
         // run sender thread.
         new Thread(new SenderRunnable(
                 queueForSender,
-                adminServer,
-                user,
-                password,
+                token,
                 dataApiServer,
                 schema,
                 table)).start();
@@ -79,9 +64,6 @@ public class ChangoClient {
     private static class SenderRunnable implements Runnable {
 
         private LinkedBlockingQueue<List<String>> queueForSender;
-        private String adminServer;
-        private String user;
-        private String password;
         private String dataApiServer;
         private String schema;
         private String table;
@@ -90,22 +72,15 @@ public class ChangoClient {
         private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
 
         public SenderRunnable(LinkedBlockingQueue<List<String>> queueForSender,
-                              String adminServer,
-                              String user,
-                              String password,
+                              String token,
                               String dataApiServer,
                               String schema,
                               String table) {
             this.queueForSender = queueForSender;
-            this.adminServer = adminServer;
-            this.user = user;
-            this.password = password;
+            this.accessToken = token;
             this.dataApiServer = dataApiServer;
             this.schema = schema;
             this.table = table;
-
-            // set access token.
-            this.accessToken = login();
         }
 
         @Override
@@ -128,39 +103,6 @@ public class ChangoClient {
                 Thread.sleep(pause);
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            }
-        }
-
-        private String login() throws RuntimeException {
-            String urlPath = this.adminServer + "/v1/login";
-
-            FormBody.Builder builder = new FormBody.Builder();
-            builder.add("user", this.user);
-            builder.add("password", this.password);
-            RequestBody body = builder.build();
-
-            try {
-                Request request = new Request.Builder()
-                        .url(urlPath)
-                        .addHeader("Content-Length", String.valueOf(body.contentLength()))
-                        .post(body)
-                        .build();
-                RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
-                if (restResponse.getStatusCode() == STATUS_OK) {
-                    String authJson = restResponse.getSuccessMessage();
-                    Map<String, Object> map = JsonUtils.toMap(new ObjectMapper(), authJson);
-                    String expiration = (String) map.get("expiration");
-                    String accessToken = (String) map.get("token");
-                    return accessToken;
-                } else {
-                    LOG.error(restResponse.getErrorMessage());
-                    LOG.error("Login failed!");
-                    throw new RuntimeException("Login failed!");
-                }
-            } catch (Exception e) {
-                LOG.error(e.getMessage());
-                LOG.error("Login failed!");
-                throw new RuntimeException("Login failed!");
             }
         }
 
@@ -196,23 +138,7 @@ public class ChangoClient {
             try {
                 RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
                 if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                    // get new access token with login again.
-                    this.accessToken = login();
-                    LOG.info("Got new access token.");
-                    // try one more time.
-                    request = new Request.Builder()
-                            .url(urlPath)
-                            .header("Accept-Encoding", "gzip")
-                            .header("Content-Encoding", "gzip")
-                            .addHeader("Authorization", "Bearer " + accessToken)
-                            .method("POST", gzip(body))
-                            .build();
-                    restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
-                    if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                        throw new RuntimeException("Sending json lines failed.");
-                    } else {
-                        LOG.info("Json lines with count [" + jsonListSize + "] sent.");
-                    }
+                    throw new RuntimeException("Sending json lines failed.");
                 } else {
                     LOG.info("Json lines with count [" + jsonListSize + "] sent.");
                 }

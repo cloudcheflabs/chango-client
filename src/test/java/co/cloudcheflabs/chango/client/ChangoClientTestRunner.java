@@ -11,10 +11,8 @@ public class ChangoClientTestRunner {
 
     @Test
     public void sendJson() throws Exception {
-        String adminServer = "https://chango-admin-oci.cloudchef-labs.com";
-        String user = System.getProperty("user");
-        String password = System.getProperty("password");
-        String dataApiServer = "https://chango-data-api-jetty-oci-user1.cloudchef-labs.com";
+        String token = System.getProperty("token");
+        String dataApiServer = System.getProperty("dataApiServer");
         int batchSize = 10000;
         long interval = 1000;
         String schema = "iceberg_db";
@@ -29,17 +27,17 @@ public class ChangoClientTestRunner {
             jsonList.add(line);
         }
 
-        ChangoClient changoClient = new ChangoClient(adminServer,
-                user,
-                password,
+        ChangoClient changoClient = new ChangoClient(
+                token,
                 dataApiServer,
                 schema,
                 table,
                 batchSize,
-                interval);
-        int count = 0;
+                interval
+        );
+
         for(String tempJson : jsonList) {
-            changoClient.add(json);
+            changoClient.add(tempJson);
         }
 
         Thread.sleep(Long.MAX_VALUE);

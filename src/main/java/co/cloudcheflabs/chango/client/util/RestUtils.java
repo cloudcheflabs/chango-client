@@ -21,47 +21,6 @@ import java.util.Map;
 
 public class RestUtils {
 
-    public static String loginAgain() throws RuntimeException {
-        SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
-        ConfigProps configProps = ChangoConfigUtils.getConfigProps();
-
-        String urlPath = configProps.getAdminServer() + "/v1/login";
-
-        FormBody.Builder builder = new FormBody.Builder();
-        builder.add("user", configProps.getUser());
-        builder.add("password", configProps.getPassword());
-        RequestBody body = builder.build();
-
-        try {
-            Request request = new Request.Builder()
-                    .url(urlPath)
-                    .addHeader("Content-Length", String.valueOf(body.contentLength()))
-                    .post(body)
-                    .build();
-            RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
-            if (restResponse.getStatusCode() == RestResponse.STATUS_OK) {
-                String authJson = restResponse.getSuccessMessage();
-                Map<String, Object> map = JsonUtils.toMap(new ObjectMapper(), authJson);
-                String expiration = (String) map.get("expiration");
-                String accessToken = (String) map.get("token");
-
-                // update access token.
-                configProps.setAccessToken(accessToken);
-                configProps.setExpiration(expiration);
-                ChangoConfigUtils.updateConfigProps(configProps);
-                return accessToken;
-            } else {
-                System.err.println(restResponse.getErrorMessage());
-                System.err.println("Login failed!");
-                throw new RuntimeException("Login failed!");
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.err.println("Login failed!");
-            throw new RuntimeException("Login failed!");
-        }
-    }
-
     public static void sendPartialJsonList(String dataApiServer,
                                            String schema,
                                            String table,
@@ -132,23 +91,7 @@ public class RestUtils {
         try {
             RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
             if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                // get new access token with login again.
-                String accessToken = loginAgain();
-                System.out.println("Got new access token.");
-                // try one more time.
-                request = new Request.Builder()
-                        .url(urlPath)
-                        .header("Accept-Encoding", "gzip")
-                        .header("Content-Encoding", "gzip")
-                        .addHeader("Authorization", "Bearer " + accessToken)
-                        .method("POST", gzip(body))
-                        .build();
-                restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
-                if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                    throw new RuntimeException("Sending json lines failed.");
-                } else {
-                    System.out.println("Json lines with count [" + jsonListSize + "] sent.");
-                }
+                throw new RuntimeException("Sending json lines failed.");
             } else {
                 System.out.println("Json lines with count [" + jsonListSize + "] sent.");
             }

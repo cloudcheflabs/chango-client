@@ -43,26 +43,7 @@ public class CsvUploadUtils {
                 .build();
         RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
         if (restResponse.getStatusCode() != STATUS_OK) {
-            String accessToken = RestUtils.loginAgain();
-            urlPath = dataApiServer + "/v1/scalable/csv/upload";
-
-            requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("text/csv"), file))
-                    .addFormDataPart("schema", schema)
-                    .addFormDataPart("separator", separator)
-                    .addFormDataPart("is_single_quote", String.valueOf(isSingleQuoted))
-                    .addFormDataPart("table", table)
-                    .build();
-
-            request = new Request.Builder()
-                    .url(urlPath)
-                    .addHeader("Authorization", "Bearer " + accessToken)
-                    .post(requestBody)
-                    .build();
-            restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
-            if (restResponse.getStatusCode() != STATUS_OK) {
-                throw new RuntimeException(restResponse.getErrorMessage());
-            }
+            throw new RuntimeException(restResponse.getErrorMessage());
         }
     }
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "csv",
-        subcommands = {CsvLocalUploader.class, CsvS3Uploader.class},
+        subcommands = {CsvLocalUploader.class},
         description = {"Upload CSV to Chango."}
 )
 public class CsvUploader implements Callable<Integer> {

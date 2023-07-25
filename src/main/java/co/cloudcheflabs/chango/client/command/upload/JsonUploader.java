@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "json",
-        subcommands = {JsonLocalUploader.class, JsonS3Uploader.class},
+        subcommands = {JsonLocalUploader.class},
         description = {"Upload JSON to Chango."}
 )
 public class JsonUploader implements Callable<Integer> {

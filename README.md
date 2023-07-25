@@ -4,7 +4,7 @@ This is chango client used to insert data to [Chango](https://chango-admin-oci-u
 
 
 ## Chango CLI
-Chango CLI is a command line interface to upload CSV, JSON and Excel which are located on local and on S3 bucket to Chango.
+Chango CLI is a command line interface to upload CSV, JSON and Excel which are located on local to Chango.
 
 ### Build Executable Jar
 ```
@@ -18,12 +18,6 @@ cp target/chango-client-*-executable.jar ~/bin/chango;
 chmod +x ~/bin/chango;
 ```
 
-### Use Chango CLI
-
-Please, see [Chango CLI](https://mykidong.atlassian.net/wiki/x/DoDjgw) for more details.
-
-
-
 
 ## Chango Client Library for Java
 This java library is used to insert JSON streaming events to Chango.
@@ -35,16 +29,11 @@ Add the following maven dependency.
 <dependency>
   <groupId>co.cloudcheflabs.chango</groupId>
   <artifactId>chango-client</artifactId>
-  <version>1.1.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
 Or, download the following jar and add it to your classpath.
 ```
-curl -L -O https://github.com/cloudcheflabs/chango-client/releases/download/1.1.0/chango-client-1.1.0-executable.jar;
+curl -L -O https://github.com/cloudcheflabs/chango-client/releases/download/2.0.0/chango-client-2.0.0-executable.jar;
 ```
-
-### Use Chango Client Library for Java
-
-Please, see [Chango Client API Library](https://mykidong.atlassian.net/wiki/x/KQDfgw) for more details.
-

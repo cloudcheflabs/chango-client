@@ -55,8 +55,24 @@ public class SendLogsToDataAPI {
 
                 String json = JsonUtils.toJson(map);
 
-                // send json.
-                changoClient.add(json);
+                try {
+                    // send json.
+                    changoClient.add(json);
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+
+                    // reconstruct chango client.
+                    changoClient = new ChangoClient(
+                            token,
+                            dataApiServer,
+                            schema,
+                            table,
+                            batchSize,
+                            interval
+                    );
+                    LOG.info("Chango client reconstructed.");
+                    Thread.sleep(10 * 1000);
+                }
 
                 count++;
             }

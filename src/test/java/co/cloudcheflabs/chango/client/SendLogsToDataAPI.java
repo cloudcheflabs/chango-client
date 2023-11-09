@@ -56,13 +56,8 @@ public class SendLogsToDataAPI {
 
                     String json = JsonUtils.toJson(map);
 
-                    try {
-                        // send json.
-                        changoClient.add(json);
-                    } catch (Exception e) {
-                        LOG.error(e.getMessage());
-                        LOG.error("Exception caught from Thread: " + e.getMessage());
-                    }
+                    // send json.
+                    changoClient.add(json);
 
                     count++;
                 }

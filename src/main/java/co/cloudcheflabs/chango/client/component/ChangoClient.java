@@ -61,6 +61,8 @@ public class ChangoClient {
                 schema,
                 table));
         t.start();
+
+        throw new RuntimeException("Exception from main..");
     }
 
     public void throwException(Exception e) {

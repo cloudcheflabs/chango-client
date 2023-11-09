@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ChangoClient {
 
@@ -32,8 +31,6 @@ public class ChangoClient {
     private LinkedBlockingQueue<List<String>> queueForSender = new LinkedBlockingQueue<>();
 
     private long intervalInMillis;
-
-    private AtomicReference<Throwable> ex = new AtomicReference<>();
 
     public ChangoClient(String token,
                         String dataApiServer,
@@ -63,8 +60,6 @@ public class ChangoClient {
                 dataApiServer,
                 schema,
                 table));
-
-        t.setUncaughtExceptionHandler(this);
         t.start();
     }
 

@@ -68,29 +68,6 @@ public class ChangoClient {
             ex.set(e);
         });
         senderThread.start();
-
-        Runnable runnable = () -> {
-            while (true) {
-                if (ex.get() != null) {
-                    LOG.info("exception caught!!!!");
-                    throwException();
-                    System.exit(1);
-                    try {
-                        Thread.sleep(5000);
-                    } catch (Exception e) {
-                        LOG.error(e.getMessage());
-                    }
-                } else {
-                    LOG.info("exception not caught...");
-                    try {
-                        Thread.sleep(5000);
-                    } catch (Exception e) {
-                        LOG.error(e.getMessage());
-                    }
-                }
-            }
-        };
-        new Thread(runnable).start();
     }
 
     public void throwException() {
@@ -229,6 +206,10 @@ public class ChangoClient {
     }
 
     public void add(String json) {
+        if(ex.get() != null) {
+            throw new RuntimeException(ex.get());
+        }
+
         queue.add(json);
         int size = queue.size();
         if(batchSize == size) {

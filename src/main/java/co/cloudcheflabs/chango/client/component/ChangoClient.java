@@ -70,7 +70,7 @@ public class ChangoClient {
         senderThread.start();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (Exception e) {
             e.printStackTrace();
         }

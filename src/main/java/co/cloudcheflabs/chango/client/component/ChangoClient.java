@@ -33,7 +33,7 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
     private long intervalInMillis;
 
-    private volatile Throwable initException;
+    private AtomicReference<Throwable> ex = new AtomicReference<>();
 
     public ChangoClient(String token,
                         String dataApiServer,
@@ -65,12 +65,25 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
         t.setUncaughtExceptionHandler(this);
         t.start();
+
+        while (true)
+        {
+            try {
+                if (ex.get() != null) {
+                    throw new RuntimeException(ex.get());
+                } else {
+                    Thread.sleep(1000);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         LOG.error("Exception: " + e.getMessage());
-        throw new RuntimeException(e);
+        ex.set(e);
     }
 
     private static class SenderRunnable implements Runnable {

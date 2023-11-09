@@ -59,7 +59,7 @@ public class SendLogsToDataAPI {
                     // send json.
                     changoClient.add(json);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error(e.getMessage());
                     LOG.error("Exception caught from Thread: " + e.getMessage());
                 }
 

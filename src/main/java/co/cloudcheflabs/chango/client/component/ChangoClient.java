@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChangoClient implements Thread.UncaughtExceptionHandler {
+public class ChangoClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ChangoClient.class);
 
@@ -56,15 +56,22 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
         // run sender thread.
-        Thread t = new Thread(new SenderRunnable(
+        Thread senderThread = new Thread(new SenderRunnable(
                 queueForSender,
                 token,
                 dataApiServer,
                 schema,
                 table));
 
-        t.setUncaughtExceptionHandler(this);
-        t.start();
+        senderThread.setUncaughtExceptionHandler((Thread t, Throwable e) -> {
+            ex.set(e);
+        });
+        senderThread.start();
+        try {
+            senderThread.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         checkCaughtException();
     }
@@ -83,12 +90,6 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
                 }
             }
         }
-    }
-
-    @Override
-    public void uncaughtException(Thread t, Throwable e) {
-        LOG.error(e.getMessage());
-        ex.set(e);
     }
 
     private static class SenderRunnable implements Runnable {

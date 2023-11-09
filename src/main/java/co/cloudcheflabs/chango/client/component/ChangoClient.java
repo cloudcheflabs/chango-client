@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChangoClient implements Thread.UncaughtExceptionHandler {
+public class ChangoClient {
 
     private static Logger LOG = LoggerFactory.getLogger(ChangoClient.class);
 
@@ -57,6 +57,7 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
         // run sender thread.
         Thread t = new Thread(new SenderRunnable(
+                this,
                 queueForSender,
                 token,
                 dataApiServer,
@@ -67,11 +68,8 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
         t.start();
     }
 
-
-    @Override
-    public void uncaughtException(Thread t, Throwable e) {
-        LOG.error("Exception: " + e.getMessage());
-        throw new RuntimeException("ERRORR!!!!!!!" + e.getMessage());
+    public void throwException(Exception e) {
+        throw new RuntimeException(e);
     }
 
     private static class SenderRunnable implements Runnable {
@@ -84,11 +82,17 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
         private ObjectMapper mapper = new ObjectMapper();
         private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
 
-        public SenderRunnable(LinkedBlockingQueue<List<String>> queueForSender,
-                              String token,
-                              String dataApiServer,
-                              String schema,
-                              String table) {
+        private ChangoClient changoClient;
+
+        public SenderRunnable(
+                ChangoClient changoClient,
+                LinkedBlockingQueue<List<String>> queueForSender,
+                String token,
+                String dataApiServer,
+                String schema,
+                String table
+        ) {
+            this.changoClient = changoClient;
             this.queueForSender = queueForSender;
             this.accessToken = token;
             this.dataApiServer = dataApiServer;
@@ -151,12 +155,14 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
             try {
                 RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
                 if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                    throw new RuntimeException("Sending json lines failed.");
+                    changoClient.throwException(new RuntimeException("Sending json lines failed."));
+                    return;
                 } else {
                     LOG.info("Json lines with count [" + jsonListSize + "] sent.");
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                changoClient.throwException(new RuntimeException(e));
+                return;
             }
         }
 

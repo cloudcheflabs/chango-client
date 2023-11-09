@@ -33,6 +33,8 @@ public class ChangoClient {
 
     private long intervalInMillis;
 
+    private AtomicReference<Throwable> errorReference = new AtomicReference<>();
+
     public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
@@ -53,7 +55,7 @@ public class ChangoClient {
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
-        AtomicReference<Throwable> errorReference = new AtomicReference<>();
+        errorReference = new AtomicReference<>();
 
         // run sender thread.
         Thread thread = new Thread(new SenderRunnable(
@@ -68,18 +70,13 @@ public class ChangoClient {
         });
         thread.start();
 
-        try {
-            thread.join();
-            Throwable newThreadError = errorReference.get();
-            if (newThreadError != null) {
-                try {
-                    throw newThreadError;
-                } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
-                }
+        Throwable newThreadError = errorReference.get();
+        if (newThreadError != null) {
+            try {
+                throw newThreadError;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

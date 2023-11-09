@@ -204,7 +204,7 @@ public class ChangoClient {
         }
     }
 
-    public void add(String json) {
+    public void add(String json) throws Exception {
         if(ex.get() != null) {
             throw new RuntimeException(ex.get());
         }

@@ -35,8 +35,6 @@ public class ChangoClient {
 
     private AtomicReference<Throwable> ex = new AtomicReference<>();
 
-    private boolean runExceptionChecker = false;
-
     public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
@@ -70,28 +68,22 @@ public class ChangoClient {
             ex.set(e);
         });
         senderThread.start();
-    }
 
-    public void throwException() {
-        throw new RuntimeException(ex.get());
-    }
-
-
-    private void checkCaughtException() {
         Runnable runnable = () -> {
             while (true) {
                 if (ex.get() != null) {
                     LOG.info("exception caught!!!!");
                     throwException();
+                    System.exit(1);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     } catch (Exception e) {
                         LOG.error(e.getMessage());
                     }
                 } else {
                     LOG.info("exception not caught...");
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     } catch (Exception e) {
                         LOG.error(e.getMessage());
                     }
@@ -99,6 +91,10 @@ public class ChangoClient {
             }
         };
         new Thread(runnable).start();
+    }
+
+    public void throwException() {
+        throw new RuntimeException(ex.get());
     }
 
     private static class SenderRunnable implements Runnable {
@@ -233,10 +229,6 @@ public class ChangoClient {
     }
 
     public void add(String json) {
-        if(!runExceptionChecker) {
-            checkCaughtException();
-        }
-
         queue.add(json);
         int size = queue.size();
         if(batchSize == size) {

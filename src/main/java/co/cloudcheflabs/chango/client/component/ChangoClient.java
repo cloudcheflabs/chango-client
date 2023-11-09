@@ -65,13 +65,8 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
         t.setUncaughtExceptionHandler(this);
         t.start();
-        try {
-            t.join();
-            if (initException != null) {
-                throw new RuntimeException(initException);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (initException != null) {
+            throw new RuntimeException(initException);
         }
     }
 

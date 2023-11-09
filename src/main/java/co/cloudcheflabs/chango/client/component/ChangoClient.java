@@ -68,14 +68,14 @@ public class ChangoClient {
             ex.set(e);
         });
         senderThread.start();
-
-        try {
-            Thread.sleep(10000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        checkCaughtException();
+//
+//        try {
+//            Thread.sleep(10000);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        checkCaughtException();
     }
 
     private void checkCaughtException() {

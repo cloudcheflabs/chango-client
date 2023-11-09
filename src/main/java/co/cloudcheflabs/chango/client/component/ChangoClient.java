@@ -68,7 +68,7 @@ public class ChangoClient {
             ex.set(e);
         });
         senderThread.start();
-        //checkCaughtException();
+        checkCaughtException();
     }
 
     private void checkCaughtException() {

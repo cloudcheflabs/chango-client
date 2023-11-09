@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ChangoClient {
 
@@ -31,6 +32,8 @@ public class ChangoClient {
     private LinkedBlockingQueue<List<String>> queueForSender = new LinkedBlockingQueue<>();
 
     private long intervalInMillis;
+
+    private AtomicReference<Throwable> ex = new AtomicReference<>();
 
     public ChangoClient(String token,
                         String dataApiServer,
@@ -52,31 +55,22 @@ public class ChangoClient {
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
-        // run sender thread.
-        Thread t = new Thread(new SenderRunnable(
-                this,
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new SenderCallable(
                 queueForSender,
                 token,
                 dataApiServer,
                 schema,
                 table));
-        t.start();
-
-        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                throw new RuntimeException("Exception from uncaught..");
-            }
-        });
-
-        throw new RuntimeException("Exception from main..");
+        try {
+            future.get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        executor.shutdown();
     }
 
-    public void throwException(Exception e) {
-        throw new RuntimeException(e);
-    }
-
-    private static class SenderRunnable implements Runnable {
+    private static class SenderCallable implements Callable<Void> {
 
         private LinkedBlockingQueue<List<String>> queueForSender;
         private String dataApiServer;
@@ -86,17 +80,11 @@ public class ChangoClient {
         private ObjectMapper mapper = new ObjectMapper();
         private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
 
-        private ChangoClient changoClient;
-
-        public SenderRunnable(
-                ChangoClient changoClient,
-                LinkedBlockingQueue<List<String>> queueForSender,
-                String token,
-                String dataApiServer,
-                String schema,
-                String table
-        ) {
-            this.changoClient = changoClient;
+        public SenderCallable(LinkedBlockingQueue<List<String>> queueForSender,
+                              String token,
+                              String dataApiServer,
+                              String schema,
+                              String table) {
             this.queueForSender = queueForSender;
             this.accessToken = token;
             this.dataApiServer = dataApiServer;
@@ -105,7 +93,7 @@ public class ChangoClient {
         }
 
         @Override
-        public void run() {
+        public Void call() throws Exception {
             while (true) {
                 List<String> jsonList = null;
                 if(!queueForSender.isEmpty()) {
@@ -159,14 +147,12 @@ public class ChangoClient {
             try {
                 RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
                 if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                    changoClient.throwException(new RuntimeException("Sending json lines failed."));
-                    return;
+                    throw new RuntimeException("Sending json lines failed.");
                 } else {
                     LOG.info("Json lines with count [" + jsonListSize + "] sent.");
                 }
             } catch (Exception e) {
-                changoClient.throwException(new RuntimeException(e));
-                return;
+                throw new RuntimeException(e);
             }
         }
 

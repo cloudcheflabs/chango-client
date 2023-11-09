@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChangoClient {
+public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
     private static Logger LOG = LoggerFactory.getLogger(ChangoClient.class);
 
@@ -55,22 +55,24 @@ public class ChangoClient {
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Void> future = executor.submit(new SenderCallable(
+        // run sender thread.
+        Thread t = new Thread(new SenderRunnable(
                 queueForSender,
                 token,
                 dataApiServer,
                 schema,
                 table));
-        try {
-            future.get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        executor.shutdown();
+
+        t.setUncaughtExceptionHandler(this);
+        t.start();
     }
 
-    private static class SenderCallable implements Callable<Void> {
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        LOG.error(e.getMessage());
+    }
+
+    private static class SenderRunnable implements Runnable {
 
         private LinkedBlockingQueue<List<String>> queueForSender;
         private String dataApiServer;
@@ -80,7 +82,7 @@ public class ChangoClient {
         private ObjectMapper mapper = new ObjectMapper();
         private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
 
-        public SenderCallable(LinkedBlockingQueue<List<String>> queueForSender,
+        public SenderRunnable(LinkedBlockingQueue<List<String>> queueForSender,
                               String token,
                               String dataApiServer,
                               String schema,
@@ -93,7 +95,7 @@ public class ChangoClient {
         }
 
         @Override
-        public Void call() throws Exception {
+        public void run() {
             while (true) {
                 List<String> jsonList = null;
                 if(!queueForSender.isEmpty()) {

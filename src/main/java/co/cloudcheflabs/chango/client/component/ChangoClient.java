@@ -62,6 +62,13 @@ public class ChangoClient {
                 table));
         t.start();
 
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                throw new RuntimeException("Exception from uncaught..");
+            }
+        });
+
         throw new RuntimeException("Exception from main..");
     }
 

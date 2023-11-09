@@ -29,11 +29,6 @@ Add the following maven dependency.
 <dependency>
   <groupId>co.cloudcheflabs.chango</groupId>
   <artifactId>chango-client</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
-```
-
-Or, download the following jar and add it to your classpath.
-```
-curl -L -O https://github.com/cloudcheflabs/chango-client/releases/download/2.0.0/chango-client-2.0.0-executable.jar;
 ```

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ChangoClient {
 
@@ -52,13 +53,34 @@ public class ChangoClient {
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
+        AtomicReference<Throwable> errorReference = new AtomicReference<>();
+
         // run sender thread.
-        new Thread(new SenderRunnable(
+        Thread thread = new Thread(new SenderRunnable(
                 queueForSender,
                 token,
                 dataApiServer,
                 schema,
-                table)).start();
+                table));
+
+        thread.setUncaughtExceptionHandler((th, ex) -> {
+            errorReference.set(ex);
+        });
+        thread.start();
+
+        try {
+            thread.join();
+            Throwable newThreadError = errorReference.get();
+            if (newThreadError != null) {
+                try {
+                    throw newThreadError;
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class SenderRunnable implements Runnable {

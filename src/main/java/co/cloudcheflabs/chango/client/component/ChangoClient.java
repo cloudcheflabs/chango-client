@@ -67,17 +67,11 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
         t.start();
     }
 
-    private void throwException() {
-        LOG.info("in throw exception...");
-        throw new RuntimeException("ERRORR!!!!!!!");
-    }
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         LOG.error("Exception: " + e.getMessage());
-        ex.set(e);
-        throwException();
-        LOG.info("throw exception called.");
+        throw new RuntimeException("ERRORR!!!!!!!" + e.getMessage());
     }
 
     private static class SenderRunnable implements Runnable {

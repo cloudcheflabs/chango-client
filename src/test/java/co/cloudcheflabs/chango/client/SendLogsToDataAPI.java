@@ -24,49 +24,53 @@ public class SendLogsToDataAPI {
         long interval = 1000;
         String schema = "iceberg_db";
 
-        ChangoClient changoClient = new ChangoClient(
-                token,
-                dataApiServer,
-                schema,
-                table,
-                batchSize,
-                interval
-        );
+        try {
+            ChangoClient changoClient = new ChangoClient(
+                    token,
+                    dataApiServer,
+                    schema,
+                    table,
+                    batchSize,
+                    interval
+            );
 
-        long count = 0;
-        while (true) {
-            int MAX = 50 * 1000;
-            for(int i = 0; i < MAX; i++) {
-                Map<String, Object> map = new HashMap<>();
+            long count = 0;
+            while (true) {
+                int MAX = 50 * 1000;
+                for (int i = 0; i < MAX; i++) {
+                    Map<String, Object> map = new HashMap<>();
 
-                DateTime dt = DateTime.now();
+                    DateTime dt = DateTime.now();
 
-                String year = String.valueOf(dt.getYear());
-                String month = padZero(dt.getMonthOfYear());
-                String day = padZero(dt.getDayOfMonth());
-                long ts = dt.getMillis(); // in milliseconds.
+                    String year = String.valueOf(dt.getYear());
+                    String month = padZero(dt.getMonthOfYear());
+                    String day = padZero(dt.getDayOfMonth());
+                    long ts = dt.getMillis(); // in milliseconds.
 
-                map.put("level", "INFO");
-                map.put("message", "any log message ... [" + count + "]");
-                map.put("ts", ts);
-                map.put("year", year);
-                map.put("month", month);
-                map.put("day", day);
+                    map.put("level", "INFO");
+                    map.put("message", "any log message ... [" + count + "]");
+                    map.put("ts", ts);
+                    map.put("year", year);
+                    map.put("month", month);
+                    map.put("day", day);
 
-                String json = JsonUtils.toJson(map);
+                    String json = JsonUtils.toJson(map);
 
-                try {
-                    // send json.
-                    changoClient.add(json);
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
-                    LOG.error("Exception caught from Thread: " + e.getMessage());
+                    try {
+                        // send json.
+                        changoClient.add(json);
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage());
+                        LOG.error("Exception caught from Thread: " + e.getMessage());
+                    }
+
+                    count++;
                 }
-
-                count++;
+                Thread.sleep(10 * 1000);
+                LOG.info("log [{}] sent...", count);
             }
-            Thread.sleep(10 * 1000);
-            LOG.info("log [{}] sent...", count);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 

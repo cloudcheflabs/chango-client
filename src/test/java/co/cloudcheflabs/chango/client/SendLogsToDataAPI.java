@@ -58,6 +58,8 @@ public class SendLogsToDataAPI {
                 try {
                     // send json.
                     changoClient.add(json);
+
+                    count++;
                 } catch (Exception e) {
                     LOG.error(e.getMessage());
 
@@ -73,8 +75,6 @@ public class SendLogsToDataAPI {
                     LOG.info("Chango client reconstructed.");
                     Thread.sleep(10 * 1000);
                 }
-
-                count++;
             }
             Thread.sleep(10 * 1000);
             LOG.info("log [{}] sent...", count);

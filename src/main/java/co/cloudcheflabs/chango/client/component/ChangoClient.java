@@ -65,11 +65,30 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
         t.setUncaughtExceptionHandler(this);
         t.start();
+
+        checkCaughtException();
+    }
+
+    private void checkCaughtException() {
+        while (true) {
+            if(ex.get() != null) {
+                LOG.info("exception caught!!!!");
+                throw new RuntimeException(ex.get());
+            } else {
+                LOG.info("exception not caught...");
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }
+            }
+        }
     }
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         LOG.error(e.getMessage());
+        ex.set(e);
     }
 
     private static class SenderRunnable implements Runnable {

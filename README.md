@@ -1,6 +1,6 @@
 # Chango Client
 
-This is chango client used to insert data to [Chango](https://chango-admin-oci-ui.cloudchef-labs.com) which is SQL Data Lakehouse Cloud Service.
+This is Chango Client used to insert data to [Chango](https://cloudcheflabs.github.io/chango-private-docs) which is Data Lakehouse Platform.
 
 
 ## Chango CLI

@@ -69,6 +69,7 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
+        LOG.error("Exception: " + e.getMessage());
         throw new RuntimeException(e);
     }
 

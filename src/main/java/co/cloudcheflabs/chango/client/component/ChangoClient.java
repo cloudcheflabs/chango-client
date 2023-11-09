@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ChangoClient {
+public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
     private static Logger LOG = LoggerFactory.getLogger(ChangoClient.class);
 
@@ -32,6 +32,8 @@ public class ChangoClient {
     private LinkedBlockingQueue<List<String>> queueForSender = new LinkedBlockingQueue<>();
 
     private long intervalInMillis;
+
+    private volatile Throwable initException;
 
     public ChangoClient(String token,
                         String dataApiServer,
@@ -53,34 +55,29 @@ public class ChangoClient {
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
 
-        AtomicReference<Throwable> errorReference = new AtomicReference<>();
-
         // run sender thread.
-        Thread thread = new Thread(new SenderRunnable(
+        Thread t = new Thread(new SenderRunnable(
                 queueForSender,
                 token,
                 dataApiServer,
                 schema,
                 table));
 
-        thread.setUncaughtExceptionHandler((th, ex) -> {
-            errorReference.set(ex);
-        });
-        thread.start();
-
+        t.setUncaughtExceptionHandler(this);
+        t.start();
         try {
-            thread.join();
-            Throwable newThreadError = errorReference.get();
-            if (newThreadError != null) {
-                try {
-                    throw newThreadError;
-                } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
-                }
+            t.join();
+            if (initException != null) {
+                throw new RuntimeException(initException);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        initException =  e;
     }
 
     private static class SenderRunnable implements Runnable {

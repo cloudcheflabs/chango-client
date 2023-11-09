@@ -72,19 +72,22 @@ public class ChangoClient {
     }
 
     private void checkCaughtException() {
-        while (true) {
-            if(ex.get() != null) {
-                LOG.info("exception caught!!!!");
-                throw new RuntimeException(ex.get());
-            } else {
-                LOG.info("exception not caught...");
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
+        Runnable runnable = () -> {
+            while (true) {
+                if (ex.get() != null) {
+                    LOG.info("exception caught!!!!");
+                    throw new RuntimeException(ex.get());
+                } else {
+                    LOG.info("exception not caught...");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage());
+                    }
                 }
             }
-        }
+        };
+        new Thread(runnable).start();
     }
 
     private static class SenderRunnable implements Runnable {

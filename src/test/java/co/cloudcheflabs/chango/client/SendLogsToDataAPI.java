@@ -70,7 +70,7 @@ public class SendLogsToDataAPI {
                 LOG.info("log [{}] sent...", count);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.error(ex.getMessage());
         }
     }
 

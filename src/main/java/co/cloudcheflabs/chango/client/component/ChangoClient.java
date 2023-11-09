@@ -69,9 +69,7 @@ public class ChangoClient implements Thread.UncaughtExceptionHandler {
 
     private void throwException() {
         LOG.info("in throw exception...");
-        if (ex.get() != null) {
-            throw new RuntimeException(ex.get());
-        }
+        new RuntimeException("ERRORR!!!!!!!");
     }
 
     @Override

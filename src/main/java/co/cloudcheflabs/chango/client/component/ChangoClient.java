@@ -83,6 +83,11 @@ public class ChangoClient {
                 if (ex.get() != null) {
                     LOG.info("exception caught!!!!");
                     throwException();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage());
+                    }
                 } else {
                     LOG.info("exception not caught...");
                     try {

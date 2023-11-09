@@ -64,7 +64,6 @@ public class ChangoClient {
                 table));
 
         senderThread.setUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            LOG.error(e.getMessage());
             ex.set(e);
         });
         senderThread.start();

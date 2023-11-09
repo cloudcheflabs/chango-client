@@ -73,7 +73,7 @@ public class SendLogsToDataAPI {
                             interval
                     );
                     LOG.info("Chango client reconstructed.");
-                    Thread.sleep(10 * 1000);
+                    Thread.sleep(1000);
                 }
             }
             Thread.sleep(10 * 1000);

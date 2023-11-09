@@ -35,6 +35,8 @@ public class ChangoClient {
 
     private AtomicReference<Throwable> ex = new AtomicReference<>();
 
+    private boolean runExceptionChecker = false;
+
     public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
@@ -68,14 +70,6 @@ public class ChangoClient {
             ex.set(e);
         });
         senderThread.start();
-//
-//        try {
-//            Thread.sleep(10000);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        checkCaughtException();
     }
 
     private void checkCaughtException() {
@@ -226,6 +220,10 @@ public class ChangoClient {
     }
 
     public void add(String json) {
+        if(!runExceptionChecker) {
+            checkCaughtException();
+        }
+
         queue.add(json);
         int size = queue.size();
         if(batchSize == size) {

@@ -3,7 +3,6 @@ package co.cloudcheflabs.chango.client.component;
 import co.cloudcheflabs.chango.client.domain.ResponseHandler;
 import co.cloudcheflabs.chango.client.domain.RestResponse;
 import co.cloudcheflabs.chango.client.util.JsonUtils;
-import co.cloudcheflabs.chango.client.util.JvmUtils;
 import co.cloudcheflabs.chango.client.util.SimpleHttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.FormBody;

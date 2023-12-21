@@ -107,6 +107,7 @@ public class ChangoClient {
                 } else {
                     pause(1000);
                 }
+                LOG.info("queueForSender size: {}", queueForSender.size());
             }
         }
 
@@ -202,6 +203,7 @@ public class ChangoClient {
             queueForSender.add(jsonList);
             queue.clear();
         }
+        LOG.info("queue size: {}", queue.size());
     }
 
     public void add(String json) throws Exception {

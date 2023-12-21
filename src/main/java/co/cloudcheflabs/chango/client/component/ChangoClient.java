@@ -153,7 +153,9 @@ public class ChangoClient {
                 if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
                     throw new RuntimeException("Sending json lines failed.");
                 } else {
-                    LOG.info("Json lines with count [" + jsonListSize + "] sent.");
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug("Json lines with count [" + jsonListSize + "] sent.");
+                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

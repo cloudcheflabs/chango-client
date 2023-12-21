@@ -108,7 +108,7 @@ public class ChangoClient {
                 } else {
                     pause(1000);
                 }
-                LOG.info("queueForSender size: {} with used memory: {}", queueForSender.size(), JvmUtils.getUsedMemory());
+                LOG.info("queueForSender size: {} with used memory: {}", queueForSender.size(), JvmUtils.getUsedMemoryInMiB());
             }
         }
 
@@ -204,7 +204,7 @@ public class ChangoClient {
             queueForSender.add(jsonList);
             queue.clear();
         }
-        LOG.info("queue size: {} with used memory: {}", queue.size(), JvmUtils.getUsedMemory());
+        LOG.info("queue size: {} with used memory: {}", queue.size(), JvmUtils.getUsedMemoryInMiB());
     }
 
     public void add(String json) throws Exception {

@@ -79,7 +79,11 @@ public class SendLogsToDataAPI {
             }
             Thread.sleep(10 * 1000);
             LOG.info("log [{}] sent...", count);
-            LOG.info("used memory in mb: {}", JvmUtils.getUsedMemoryInMiB());
+            LOG.info("total memory: {}, max memory: {}, free memory: {}, used memory: {}",
+                    JvmUtils.getTotalMemoryInMiB(),
+                    JvmUtils.getMaxMemoryInMiB(),
+                    JvmUtils.getFreeMemoryInMiB(),
+                    JvmUtils.getUsedMemoryInMiB());
         }
     }
 

@@ -3,6 +3,7 @@ package co.cloudcheflabs.chango.client.component;
 import co.cloudcheflabs.chango.client.domain.ResponseHandler;
 import co.cloudcheflabs.chango.client.domain.RestResponse;
 import co.cloudcheflabs.chango.client.util.JsonUtils;
+import co.cloudcheflabs.chango.client.util.JvmUtils;
 import co.cloudcheflabs.chango.client.util.SimpleHttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.FormBody;
@@ -107,7 +108,7 @@ public class ChangoClient {
                 } else {
                     pause(1000);
                 }
-                LOG.info("queueForSender size: {}", queueForSender.size());
+                LOG.info("queueForSender size: {} with used memory: {}", queueForSender.size(), JvmUtils.getUsedMemory());
             }
         }
 
@@ -203,7 +204,7 @@ public class ChangoClient {
             queueForSender.add(jsonList);
             queue.clear();
         }
-        LOG.info("queue size: {}", queue.size());
+        LOG.info("queue size: {} with used memory: {}", queue.size(), JvmUtils.getUsedMemory());
     }
 
     public void add(String json) throws Exception {

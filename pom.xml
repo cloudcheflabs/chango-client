@@ -69,7 +69,7 @@
 		<spring.version>5.2.4.RELEASE</spring.version>
 
 		<!-- ok http -->
-		<okhttp.version>4.9.3</okhttp.version>
+		<okhttp.version>4.12.0</okhttp.version>
 
 		<!-- pico cli -->
 		<picocli.version>4.7.0</picocli.version>

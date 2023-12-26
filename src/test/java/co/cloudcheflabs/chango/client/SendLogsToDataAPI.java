@@ -2,6 +2,7 @@ package co.cloudcheflabs.chango.client;
 
 import co.cloudcheflabs.chango.client.component.ChangoClient;
 import co.cloudcheflabs.chango.client.util.JsonUtils;
+import co.cloudcheflabs.chango.client.util.JvmUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -78,6 +79,11 @@ public class SendLogsToDataAPI {
             }
             Thread.sleep(10 * 1000);
             LOG.info("log [{}] sent...", count);
+            LOG.info("total memory: {}, max memory: {}, free memory: {}, used memory: {}",
+                    JvmUtils.getTotalMemoryInMiB(),
+                    JvmUtils.getMaxMemoryInMiB(),
+                    JvmUtils.getFreeMemoryInMiB(),
+                    JvmUtils.getUsedMemoryInMiB());
         }
     }
 

@@ -3,7 +3,6 @@ package co.cloudcheflabs.chango.client.component;
 import co.cloudcheflabs.chango.client.domain.ResponseHandler;
 import co.cloudcheflabs.chango.client.domain.RestResponse;
 import co.cloudcheflabs.chango.client.util.JsonUtils;
-import co.cloudcheflabs.chango.client.util.JvmUtils;
 import co.cloudcheflabs.chango.client.util.SimpleHttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.FormBody;
@@ -153,7 +152,9 @@ public class ChangoClient {
                 if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
                     throw new RuntimeException("Sending json lines failed.");
                 } else {
-                    LOG.info("Json lines with count [" + jsonListSize + "] sent.");
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug("Json lines with count [" + jsonListSize + "] sent.");
+                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

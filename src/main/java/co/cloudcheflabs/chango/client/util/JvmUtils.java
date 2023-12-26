@@ -40,7 +40,7 @@ public class JvmUtils {
     }
 
     public static double getPercentageUsed() {
-        return ((double) getUsedMemory() / getMaxMemory()) * 100;
+        return ((double) getUsedMemory() / getTotalMemory()) * 100;
     }
 
     public static String getPercentageUsedFormatted() {

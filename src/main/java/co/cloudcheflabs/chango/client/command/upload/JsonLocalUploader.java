@@ -62,6 +62,13 @@ public class JsonLocalUploader implements Callable<Integer> {
     )
     private int batchSize = 100000;
 
+    @CommandLine.Option(
+            names = {"--tx"},
+            description = {"Use transactional data api."},
+            required = false
+    )
+    private boolean transactional = false;
+
     public JsonLocalUploader() {}
 
     public Integer call() throws Exception {
@@ -77,13 +84,13 @@ public class JsonLocalUploader implements Callable<Integer> {
                     System.err.println("File path [" + filePath + "] does not exist!");
                     return -1;
                 }
-                RestUtils.sendPartialJsonList(dataApiServer, schema, table, filePath, batchSize);
+                RestUtils.sendPartialJsonList(dataApiServer, schema, table, filePath, batchSize, transactional);
                 System.out.println("Sending json lines in the file [" + filePath + "] completed.");
             } else if (directoryPath != null) {
                 File directory = new File(directoryPath);
                 if (directory.exists()) {
                     for (File f : directory.listFiles()) {
-                        RestUtils.sendPartialJsonList(dataApiServer, schema, table, f.getAbsolutePath(), batchSize);
+                        RestUtils.sendPartialJsonList(dataApiServer, schema, table, f.getAbsolutePath(), batchSize, transactional);
                         System.out.println("Sending json lines in the file [" + f.getName() + "] completed.");
                     }
                 } else {

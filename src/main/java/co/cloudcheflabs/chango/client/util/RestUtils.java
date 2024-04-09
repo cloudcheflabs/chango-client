@@ -97,7 +97,7 @@ public class RestUtils {
         try {
             RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
             if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                throw new RuntimeException("Sending json lines failed.");
+                throw new RuntimeException("Sending json lines failed: " + restResponse.getErrorMessage());
             } else {
                 System.out.println("Json lines with count [" + jsonListSize + "] sent.");
             }

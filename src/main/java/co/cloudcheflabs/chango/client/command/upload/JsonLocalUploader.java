@@ -102,7 +102,6 @@ public class JsonLocalUploader implements Callable<Integer> {
                 return -1;
             }
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println(e.getMessage());
             return -1;
         }

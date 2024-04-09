@@ -1,6 +1,5 @@
 package co.cloudcheflabs.chango.client.util;
 
-import ch.qos.logback.classic.Logger;
 import co.cloudcheflabs.chango.client.domain.ConfigProps;
 import co.cloudcheflabs.chango.client.domain.ResponseHandler;
 import co.cloudcheflabs.chango.client.domain.RestResponse;
@@ -80,7 +79,6 @@ public class RestUtils {
 
         String apiPath = (transactional) ? "/v1/event/tx/create" : "/v1/scalable/multi_event_logs/create";
         String urlPath = dataApiServer + apiPath;
-        System.out.println("url path: " + urlPath);
 
         FormBody.Builder builder = new FormBody.Builder();
         builder.add("schema", schema);

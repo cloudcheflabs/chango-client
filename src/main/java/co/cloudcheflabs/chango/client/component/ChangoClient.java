@@ -48,6 +48,16 @@ public class ChangoClient {
                         String table,
                         int batchSize,
                         long intervalInMillis) {
+        this(token, dataApiServer, schema, table, batchSize, intervalInMillis, false);
+    }
+
+    public ChangoClient(String token,
+                        String dataApiServer,
+                        String schema,
+                        String table,
+                        int batchSize,
+                        long intervalInMillis,
+                        boolean transactional) {
         this.batchSize = batchSize;
         this.intervalInMillis = intervalInMillis;
 
@@ -61,7 +71,8 @@ public class ChangoClient {
                 token,
                 dataApiServer,
                 schema,
-                table));
+                table,
+                transactional));
 
         senderThread.setUncaughtExceptionHandler((Thread t, Throwable e) -> {
             ex.set(e);
@@ -82,17 +93,20 @@ public class ChangoClient {
         private String accessToken;
         private ObjectMapper mapper = new ObjectMapper();
         private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
+        private boolean transactional;
 
         public SenderRunnable(LinkedBlockingQueue<List<String>> queueForSender,
                               String token,
                               String dataApiServer,
                               String schema,
-                              String table) {
+                              String table,
+                              boolean transactional) {
             this.queueForSender = queueForSender;
             this.accessToken = token;
             this.dataApiServer = dataApiServer;
             this.schema = schema;
             this.table = table;
+            this.transactional = transactional;
         }
 
         @Override
@@ -131,7 +145,8 @@ public class ChangoClient {
             int jsonListSize = mapList.size();
 
 
-            String urlPath = dataApiServer + "/v1/scalable/multi_event_logs/create";
+            String apiPath = (transactional) ? "/v1/event/tx/create" : "/v1/scalable/multi_event_logs/create";
+            String urlPath = dataApiServer + apiPath;
 
             FormBody.Builder builder = new FormBody.Builder();
             builder.add("schema", schema);

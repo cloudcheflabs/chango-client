@@ -25,7 +25,8 @@ public class RestUtils {
                                            String schema,
                                            String table,
                                            String filePath,
-                                           int maxCount) {
+                                           int maxCount,
+                                           boolean transactional) {
         BufferedReader reader;
         try {
             reader = new BufferedReader(new FileReader(filePath));
@@ -37,7 +38,7 @@ public class RestUtils {
             while (line != null) {
                 jsonList.add(line);
                 if(count == MAX -1) {
-                    sendJsonEvents(dataApiServer, schema, table, jsonList);
+                    sendJsonEvents(dataApiServer, schema, table, jsonList, transactional);
                     jsonList = new ArrayList<>();
                     count = 0;
                 } else {
@@ -48,7 +49,7 @@ public class RestUtils {
             }
 
             if(jsonList.size() > 0) {
-                sendJsonEvents(dataApiServer, schema, table, jsonList);
+                sendJsonEvents(dataApiServer, schema, table, jsonList, transactional);
             }
             reader.close();
         } catch (Exception e) {
@@ -56,7 +57,11 @@ public class RestUtils {
         }
     }
 
-    public static void sendJsonEvents(String dataApiServer, String schema, String table, List<String> jsonList) throws RuntimeException{
+    public static void sendJsonEvents(String dataApiServer,
+                                      String schema,
+                                      String table,
+                                      List<String> jsonList,
+                                      boolean transactional) throws RuntimeException{
         SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
         ConfigProps configProps = ChangoConfigUtils.getConfigProps();
 
@@ -72,7 +77,8 @@ public class RestUtils {
         int jsonListSize = mapList.size();
 
 
-        String urlPath = dataApiServer + "/v1/scalable/multi_event_logs/create";
+        String apiPath = (transactional) ? "/v1/event/tx/create" : "/v1/scalable/multi_event_logs/create";
+        String urlPath = dataApiServer + apiPath;
 
         FormBody.Builder builder = new FormBody.Builder();
         builder.add("schema", schema);
@@ -91,7 +97,7 @@ public class RestUtils {
         try {
             RestResponse restResponse = ResponseHandler.doCall(simpleHttpClient.getClient(), request);
             if (restResponse.getStatusCode() != RestResponse.STATUS_OK) {
-                throw new RuntimeException("Sending json lines failed.");
+                throw new RuntimeException("Sending json lines failed: " + restResponse.getErrorMessage());
             } else {
                 System.out.println("Json lines with count [" + jsonListSize + "] sent.");
             }

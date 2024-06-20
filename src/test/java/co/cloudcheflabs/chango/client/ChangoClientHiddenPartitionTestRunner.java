@@ -2,10 +2,8 @@ package co.cloudcheflabs.chango.client;
 
 import co.cloudcheflabs.chango.client.component.ChangoClient;
 import co.cloudcheflabs.chango.client.util.JsonUtils;
-import co.cloudcheflabs.chango.client.util.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.slf4j.event.SubstituteLoggingEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;

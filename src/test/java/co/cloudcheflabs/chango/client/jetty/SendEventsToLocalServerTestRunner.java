@@ -29,7 +29,7 @@ public class SendEventsToLocalServerTestRunner {
         String dataApiServer = "http://localhost:8080";
         String table = "test_table";
 
-        int batchSize = 1000;
+        int batchSize = 10000;
         long interval = 1000;
         String schema = "iceberg_db";
 
@@ -70,7 +70,7 @@ public class SendEventsToLocalServerTestRunner {
                 try {
                     // send json.
                     changoClient.add(json);
-                    //Thread.sleep(100);
+                    Thread.sleep(20);
 
                     count++;
                     LOG.info("count: {}", count);

@@ -82,21 +82,21 @@ public class ChangoClient {
                     table,
                     transactional
             );
+        } else {
+            // run sender thread.
+            Thread senderThread = new Thread(new SenderRunnable(
+                    queueForSender,
+                    token,
+                    dataApiServer,
+                    schema,
+                    table,
+                    transactional));
+
+            senderThread.setUncaughtExceptionHandler((Thread t, Throwable e) -> {
+                ex.set(e);
+            });
+            senderThread.start();
         }
-
-        // run sender thread.
-        Thread senderThread = new Thread(new SenderRunnable(
-                queueForSender,
-                token,
-                dataApiServer,
-                schema,
-                table,
-                transactional));
-
-        senderThread.setUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            ex.set(e);
-        });
-        senderThread.start();
     }
 
     public void throwException() {
@@ -160,10 +160,10 @@ public class ChangoClient {
         private boolean transactional;
 
         public EventsSender(String token,
-                              String dataApiServer,
-                              String schema,
-                              String table,
-                              boolean transactional) {
+                            String dataApiServer,
+                            String schema,
+                            String table,
+                            boolean transactional) {
             this.accessToken = token;
             this.dataApiServer = dataApiServer;
             this.schema = schema;
@@ -248,7 +248,16 @@ public class ChangoClient {
     }
 
     public void fire() {
-        putToInternalQueue();
+        if(transactional) {
+            lock.lock();
+            try {
+                sendEventsDirectly();
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            putToInternalQueue();
+        }
     }
 
     private void putToInternalQueue() {
@@ -256,6 +265,19 @@ public class ChangoClient {
             String[] jsonArray = queue.toArray(new String[0]);
             List<String> jsonList = Arrays.asList(jsonArray);
             queueForSender.add(jsonList);
+            queue.clear();
+        }
+    }
+
+    private void sendEventsDirectly() {
+        if(!queue.isEmpty()) {
+            String[] jsonArray = queue.toArray(new String[0]);
+            List<String> jsonList = Arrays.asList(jsonArray);
+            try {
+                eventsSender.sendJsonEvents(jsonList);
+            } catch (Exception e) {
+                ex.set(e);
+            }
             queue.clear();
         }
     }
@@ -271,12 +293,7 @@ public class ChangoClient {
                 queue.add(json);
                 int size = queue.size();
                 if (batchSize == size) {
-                    if(!queue.isEmpty()) {
-                        String[] jsonArray = queue.toArray(new String[0]);
-                        List<String> jsonList = Arrays.asList(jsonArray);
-                        eventsSender.sendJsonEvents(jsonList);
-                        queue.clear();
-                    }
+                    sendEventsDirectly();
                 }
             } finally {
                 lock.unlock();

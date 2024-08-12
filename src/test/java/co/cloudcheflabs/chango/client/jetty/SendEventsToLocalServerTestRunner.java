@@ -70,7 +70,7 @@ public class SendEventsToLocalServerTestRunner {
                 try {
                     // send json.
                     changoClient.add(json);
-                    Thread.sleep(20);
+                    //Thread.sleep(20);
 
                     count++;
                     LOG.info("count: {}", count);

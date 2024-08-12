@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ChangoClient {
 
@@ -34,6 +35,12 @@ public class ChangoClient {
     private long intervalInMillis;
 
     private AtomicReference<Throwable> ex = new AtomicReference<>();
+
+    private boolean transactional = false;
+
+    private EventsSender eventsSender;
+    private ReentrantLock lock = new ReentrantLock();
+
 
     public ChangoClient(String token,
                         String dataApiServer,
@@ -60,10 +67,22 @@ public class ChangoClient {
                         boolean transactional) {
         this.batchSize = batchSize;
         this.intervalInMillis = intervalInMillis;
+        this.transactional = transactional;
 
         // run timer.
         Timer timer = new Timer("Chango Client Timer");
         timer.schedule(new SendJsonTask(this), 1000, intervalInMillis);
+
+        // tx events sender.
+        if(transactional) {
+            eventsSender = new EventsSender(
+                    token,
+                    dataApiServer,
+                    schema,
+                    table,
+                    transactional
+            );
+        }
 
         // run sender thread.
         Thread senderThread = new Thread(new SenderRunnable(
@@ -85,15 +104,8 @@ public class ChangoClient {
     }
 
     private static class SenderRunnable implements Runnable {
-
         private LinkedBlockingQueue<List<String>> queueForSender;
-        private String dataApiServer;
-        private String schema;
-        private String table;
-        private String accessToken;
-        private ObjectMapper mapper = new ObjectMapper();
-        private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
-        private boolean transactional;
+        private EventsSender eventsSender;
 
         public SenderRunnable(LinkedBlockingQueue<List<String>> queueForSender,
                               String token,
@@ -102,11 +114,14 @@ public class ChangoClient {
                               String table,
                               boolean transactional) {
             this.queueForSender = queueForSender;
-            this.accessToken = token;
-            this.dataApiServer = dataApiServer;
-            this.schema = schema;
-            this.table = table;
-            this.transactional = transactional;
+
+            eventsSender = new EventsSender(
+                    token,
+                    dataApiServer,
+                    schema,
+                    table,
+                    transactional
+            );
         }
 
         @Override
@@ -117,7 +132,7 @@ public class ChangoClient {
                     jsonList = queueForSender.remove();
                 }
                 if(jsonList != null && jsonList.size() > 0) {
-                    sendJsonEvents(dataApiServer, schema, table, jsonList);
+                    eventsSender.sendJsonEvents(jsonList);
                 } else {
                     pause(1000);
                 }
@@ -131,8 +146,32 @@ public class ChangoClient {
                 throw new RuntimeException(e);
             }
         }
+    }
 
-        private void sendJsonEvents(String dataApiServer, String schema, String table, List<String> jsonList) throws RuntimeException{
+
+    private static class EventsSender {
+
+        private String dataApiServer;
+        private String schema;
+        private String table;
+        private String accessToken;
+        private ObjectMapper mapper = new ObjectMapper();
+        private SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
+        private boolean transactional;
+
+        public EventsSender(String token,
+                              String dataApiServer,
+                              String schema,
+                              String table,
+                              boolean transactional) {
+            this.accessToken = token;
+            this.dataApiServer = dataApiServer;
+            this.schema = schema;
+            this.table = table;
+            this.transactional = transactional;
+        }
+
+        public void sendJsonEvents(List<String> jsonList) throws RuntimeException{
 
             List<Map<String, Object>> mapList = new ArrayList<>();
             for(String json : jsonList) {
@@ -226,10 +265,28 @@ public class ChangoClient {
             throw new RuntimeException(ex.get());
         }
 
-        queue.add(json);
-        int size = queue.size();
-        if(batchSize == size) {
-            putToInternalQueue();
+        if(transactional) {
+            lock.lock();
+            try {
+                queue.add(json);
+                int size = queue.size();
+                if (batchSize == size) {
+                    if(!queue.isEmpty()) {
+                        String[] jsonArray = queue.toArray(new String[0]);
+                        List<String> jsonList = Arrays.asList(jsonArray);
+                        eventsSender.sendJsonEvents(jsonList);
+                        queue.clear();
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            queue.add(json);
+            int size = queue.size();
+            if (batchSize == size) {
+                putToInternalQueue();
+            }
         }
     }
 }

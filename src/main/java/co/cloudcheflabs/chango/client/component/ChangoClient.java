@@ -40,8 +40,6 @@ public class ChangoClient {
 
     private EventsSender eventsSender;
     private ReentrantLock lock = new ReentrantLock();
-
-
     public ChangoClient(String token,
                         String dataApiServer,
                         String schema,
@@ -247,16 +245,12 @@ public class ChangoClient {
         }
     }
 
-    public void fire() {
-        if(transactional) {
+    private void fire() {
+        try {
             lock.lock();
-            try {
-                sendEventsDirectly();
-            } finally {
-                lock.unlock();
-            }
-        } else {
             putToInternalQueue();
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -269,40 +263,32 @@ public class ChangoClient {
         }
     }
 
-    private void sendEventsDirectly() {
-        if(!queue.isEmpty()) {
-            String[] jsonArray = queue.toArray(new String[0]);
-            List<String> jsonList = Arrays.asList(jsonArray);
-            try {
-                eventsSender.sendJsonEvents(jsonList);
-            } catch (Exception e) {
-                ex.set(e);
-            }
-            queue.clear();
-        }
-    }
-
     public void add(String json) throws Exception {
-        if(ex.get() != null) {
-            throw new RuntimeException(ex.get());
-        }
-
         if(transactional) {
-            lock.lock();
+            eventsSender.sendJsonEvents(Arrays.asList(json));
+        } else {
+            if(ex.get() != null) {
+                throw new RuntimeException(ex.get());
+            }
             try {
+                lock.lock();
                 queue.add(json);
                 int size = queue.size();
                 if (batchSize == size) {
-                    sendEventsDirectly();
+                    putToInternalQueue();
                 }
             } finally {
                 lock.unlock();
             }
+        }
+    }
+
+    public void add(List<String> jsonList) throws Exception {
+        if(transactional) {
+            eventsSender.sendJsonEvents(jsonList);
         } else {
-            queue.add(json);
-            int size = queue.size();
-            if (batchSize == size) {
-                putToInternalQueue();
+            for(String json : jsonList) {
+                add(json);
             }
         }
     }

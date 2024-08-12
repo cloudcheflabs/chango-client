@@ -38,15 +38,15 @@ public class TxEventLogsServlet extends HttpServlet {
         List<Map<String, Object>> mapList = JsonUtils.toMapList(mapper, jsonList);
         LOG.info("json list size: {}", mapList.size());
 
-        long currentTotalCount = totalCount.addAndGet(mapList.size());
-        LOG.info("total count: {}", currentTotalCount);
-
         PrintWriter writer = null;
         try {
             // throw exception.
             if(count.incrementAndGet() % 20 == 0) {
                 throw new ServletException("Exception occurred.");
             }
+
+            long currentTotalCount = totalCount.addAndGet(mapList.size());
+            LOG.info("total count: {}", currentTotalCount);
 
             resp.setStatus(Response.SC_OK);
             resp.setHeader("Content-Encoding", "");

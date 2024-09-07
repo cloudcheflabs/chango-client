@@ -51,11 +51,9 @@ public class ChangoClientHiddenPartitionTransactionalTestRunner {
             }
 
 
-            for (String tempJson : jsonList) {
-                changoClient.add(tempJson);
-            }
+            changoClient.add(jsonList);
 
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(10);
             System.out.println("message sent: " + count);
         }
     }

@@ -41,11 +41,10 @@ public class SendLogsToDataAPI {
                 Map<String, Object> map = new HashMap<>();
 
                 DateTime dt = DateTime.now();
-                long ts = dt.getMillis(); // in milliseconds.
 
                 map.put("level", "INFO");
                 map.put("message", "any log message ... [" + count + "]");
-                map.put("ts", ts);
+                map.put("ts", dt.toString());
 
                 String json = JsonUtils.toJson(map);
 

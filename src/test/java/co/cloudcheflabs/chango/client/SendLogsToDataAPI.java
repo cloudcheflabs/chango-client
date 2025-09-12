@@ -20,6 +20,7 @@ public class SendLogsToDataAPI {
         String token = System.getProperty("token");
         String dataApiServer = System.getProperty("dataApiServer");
         String table = System.getProperty("table");
+        boolean tx = Boolean.valueOf(System.getProperty("tx", "false"));
 
         int batchSize = 10000;
         long interval = 1000;
@@ -31,7 +32,8 @@ public class SendLogsToDataAPI {
                 schema,
                 table,
                 batchSize,
-                interval
+                interval,
+                tx
         );
 
         long count = 0;
